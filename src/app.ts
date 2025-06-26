@@ -35,6 +35,14 @@ app.use((err: Error, req: Request, res: Response, next: Function) => {
   } as ErrorResponse);
 });
 
+// Catchall remaining requests
+app.use('*', (req: Request, res: Response) => {
+  res.status(404).json({
+    error: 'NOT_FOUND',
+    message: 'Endpoint not found'
+  } as ErrorResponse);
+});
+
 app.listen(port, () => {
   console.log(`Calculator API running on port ${port}`);
   console.log(`Health check: http://localhost:${port}/health`);
