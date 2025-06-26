@@ -27,6 +27,15 @@ app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+app.use((err: Error, req: Request, res: Response, next: Function) => {
+  console.error(`Unhandled error:`, err);
+  res.status(500).json({
+    error: 'INTERNAL_ERROR',
+    message: 'An unexpected error occurred'
+  } as ErrorResponse);
+});
+
 app.listen(port, () => {
   console.log(`Calculator API running on port ${port}`);
-})
+  console.log(`Health check: http://localhost:${port}/health`);
+});
