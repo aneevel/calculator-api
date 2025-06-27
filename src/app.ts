@@ -61,6 +61,42 @@ app.post('/calculate', (req: Request, res: Response) => {
     }
 
     // Actual calculation
+    let result: number = 0;
+    switch (operation) {
+      case 'add':
+        result = a + b;
+        break;
+      case 'subtract':
+        result = a - b;
+        break;
+      case 'multiply':
+        result = a * b;
+        break;
+      case 'divide':
+        if (b <= 0) {
+          res.status(400).json({
+            error: 'ILLEGAL_CALCULATION',
+            message: 'Cannot divide by zero'
+          } as ErrorResponse);
+        }
+        result = a / b;
+        break;
+      default:
+        res.status(400).json({
+          error: 'UNSUPPORTED_CALCULATION',
+          message: 'Calculation not supported by API'
+        } as ErrorResponse);
+
+    }
+
+    const response: CalculationResponse = {
+      result,
+      operation,
+      a,
+      b
+    };
+
+    res.json(response);
 
   } catch (error) {
     console.error('Calculation error:', error);
