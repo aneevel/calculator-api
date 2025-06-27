@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import { rateLimit } from 'express-rate-limit';
+var morgan = require('morgan');
 
 interface CalculationRequest {
   operation: 'add' | 'subtract' | 'multiply' | 'divide';
@@ -43,6 +44,8 @@ const limiter = rateLimit({
 })
 
 app.use(limiter);
+
+app.use(morgan('combined'));
 
 app.use(express.json());
 
