@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response } from "express";
 
 interface CalculationRequest {
   operation: 'add' | 'subtract' | 'multiply' | 'divide';
@@ -23,20 +23,56 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
+app.get('/', (req: Request, res: Response) => {
+  res.send('Welcome to the Calculator API!');
+});
+
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
 app.use((err: Error, req: Request, res: Response, next: Function) => {
-  console.error(`Unhandled error:`, err);
+  console.error('Unhandled error:', err);
   res.status(500).json({
     error: 'INTERNAL_ERROR',
     message: 'An unexpected error occurred'
   } as ErrorResponse);
 });
 
-// Catchall remaining requests
-app.use('*', (req: Request, res: Response) => {
+app.post('/calculate', (req: Request, res: Response) => {
+  try {
+    const { operation, a, b }: CalculationRequest = req.body;
+
+    // Input validation
+    // Validate numbers
+    if (typeof a !== 'number' || typeof b !== 'number') {
+      res.status(400).json({
+        error: 'VALIDATION_ERROR',
+        message: 'Invalid types provided for operands'
+      } as ErrorResponse);
+    }
+
+    // Check that operation is supported
+    if (!['add', 'subtract', 'multiply', 'divide'].includes(operation)) {
+      res.status(400).json({
+        error: 'VALIDATION_ERROR',
+        message: 'Unsupported calculation type provided'
+      } as ErrorResponse);
+    }
+
+    // Actual calculation
+
+  } catch (error) {
+    console.error('Calculation error:', error);
+    res.status(500).json({
+      error: 'CALCULATION_ERROR',
+      message: 'An error occurred with the calculation endpoint'
+    } as ErrorResponse);
+  }
+});
+
+// Fallback catch-all handler 
+app.get('*name', (req: Request, res: Response) => {
   res.status(404).json({
     error: 'NOT_FOUND',
     message: 'Endpoint not found'
@@ -46,4 +82,5 @@ app.use('*', (req: Request, res: Response) => {
 app.listen(port, () => {
   console.log(`Calculator API running on port ${port}`);
   console.log(`Health check: http://localhost:${port}/health`);
+  console.log(`Calculator: POST http://localhost:${port}/calculate`);
 });
