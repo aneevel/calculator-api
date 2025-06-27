@@ -1,0 +1,4 @@
+::1 - - [27/Jun/2025:03:00:31 +0000] "GET /health HTTP/1.1" 200 54 "-" "PostmanRuntime/7.40.0"
+::1 - - [27/Jun/2025:03:00:48 +0000] "GET /health HTTP/1.1" 200 54 "-" "PostmanRuntime/7.40.0"
+::1 - - [27/Jun/2025:03:00:56 +0000] "GET /health HTTP/1.1" 200 54 "-" "PostmanRuntime/7.40.0"
+::1 - - [27/Jun/2025:03:01:12 +0000] "POST /calculate HTTP/1.1" 200 45 "-" "PostmanRuntime/7.40.0"

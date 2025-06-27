@@ -1,6 +1,9 @@
 import express, { Request, Response } from "express";
 import { rateLimit } from 'express-rate-limit';
-var morgan = require('morgan');
+import fs from 'fs';
+import path from 'path';
+
+const morgan = require('morgan');
 
 interface CalculationRequest {
   operation: 'add' | 'subtract' | 'multiply' | 'divide';
@@ -34,6 +37,8 @@ const port = process.env.PORT || 3000;
 
 const calculationHistory: CalculationHistory[] = [];
 
+const accessLogStream = fs.createWriteStream(path.join(__dirname, '../logs/', 'access.log'), { flags: 'a' });
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes 
   limit: 100, // Limit each IP to 100 requests per 'window'
@@ -45,7 +50,7 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-app.use(morgan('combined'));
+app.use(morgan('combined', { stream: accessLogStream }));
 
 app.use(express.json());
 
