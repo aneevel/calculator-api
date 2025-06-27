@@ -1,4 +1,5 @@
 import express, { Request, Response } from "express";
+import { rateLimit } from 'express-rate-limit';
 
 interface CalculationRequest {
   operation: 'add' | 'subtract' | 'multiply' | 'divide';
@@ -31,6 +32,17 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 const calculationHistory: CalculationHistory[] = [];
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes 
+  limit: 100, // Limit each IP to 100 requests per 'window'
+  message: {
+    error: 'RATE_LIMIT_EXCEED',
+    message: 'Too many requests from IP in window'
+  }
+})
+
+app.use(limiter);
 
 app.use(express.json());
 
@@ -116,6 +128,17 @@ app.post('/calculate', (req: Request, res: Response) => {
       a,
       b
     };
+
+    const historyRecord: CalculationHistory = {
+      id: calculationHistory.length,
+      operation: operation,
+      a: a,
+      b: b,
+      result: result,
+      timestamp: new Date()
+    }
+
+    calculationHistory.push(historyRecord);
 
     res.json(response);
 
