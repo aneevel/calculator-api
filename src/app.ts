@@ -13,6 +13,15 @@ interface CalculationResponse {
   b: number;
 }
 
+interface CalculationHistory {
+  id: number;
+  operation: string;
+  a: number;
+  b: number;
+  result: number;
+  timestamp: Date
+}
+
 interface ErrorResponse {
   error: string;
   message: string
@@ -20,6 +29,8 @@ interface ErrorResponse {
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+const calculationHistory: CalculationHistory[] = [];
 
 app.use(express.json());
 
@@ -39,6 +50,13 @@ app.use((err: Error, req: Request, res: Response, next: Function) => {
   } as ErrorResponse);
 });
 
+app.get('/history', (req: Request, res: Response) => {
+  res.json({
+    calculations: calculationHistory,
+    total: calculationHistory.length
+  });
+});
+
 app.post('/calculate', (req: Request, res: Response) => {
   try {
     const { operation, a, b }: CalculationRequest = req.body;
@@ -50,6 +68,7 @@ app.post('/calculate', (req: Request, res: Response) => {
         error: 'VALIDATION_ERROR',
         message: 'Invalid types provided for operands'
       } as ErrorResponse);
+      return;
     }
 
     // Check that operation is supported
@@ -58,6 +77,7 @@ app.post('/calculate', (req: Request, res: Response) => {
         error: 'VALIDATION_ERROR',
         message: 'Unsupported calculation type provided'
       } as ErrorResponse);
+      return;
     }
 
     // Actual calculation
@@ -78,6 +98,7 @@ app.post('/calculate', (req: Request, res: Response) => {
             error: 'ILLEGAL_CALCULATION',
             message: 'Cannot divide by zero'
           } as ErrorResponse);
+          return;
         }
         result = a / b;
         break;
@@ -117,6 +138,7 @@ app.get('*name', (req: Request, res: Response) => {
 
 app.listen(port, () => {
   console.log(`Calculator API running on port ${port}`);
-  console.log(`Health check: http://localhost:${port}/health`);
+  console.log(`Health check: GET http://localhost:${port}/health`);
   console.log(`Calculator: POST http://localhost:${port}/calculate`);
+  console.log(`History: GET http://localhost:${port}/history`);
 });
